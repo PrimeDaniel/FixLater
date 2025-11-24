@@ -1,0 +1,65 @@
+.settings {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.settings-tabs {
+  display: flex;
+  border-bottom: 1px solid #eee;
+}
+
+.settings-tabs button {
+  flex: 1;
+  padding: 15px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 500;
+  color: #666;
+  transition: all 0.2s;
+}
+
+.settings-tabs button:hover {
+  background: #f8f9fa;
+}
+
+.settings-tabs button.active {
+  color: #007bff;
+  border-bottom: 2px solid #007bff;
+}
+
+.settings-content {
+  padding: 30px;
+}
+
+.settings-form {
+  max-width: 600px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border: 1px solid #c3e6cb;
+}
+
+.profile-photo-preview {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 10px;
+  border: 2px solid #ddd;
+}
+
+@media (max-width: 768px) {
+  .settings-content {
+    padding: 20px;
+  }
+}
+
