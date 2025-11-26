@@ -4,21 +4,45 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 1000;
   padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .modal-content {
   background: white;
-  border-radius: 8px;
-  max-width: 500px;
+  border-radius: 16px;
+  max-width: 520px;
   width: 100%;
   max-height: 90vh;
   overflow-y: auto;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .modal-header {
@@ -43,12 +67,19 @@
   cursor: pointer;
   line-height: 1;
   padding: 0;
-  width: 32px;
-  height: 32px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .modal-close:hover {
-  color: #333;
+  color: #dc3545;
+  background: rgba(220, 53, 69, 0.1);
+  transform: rotate(90deg);
 }
 
 .review-form {
@@ -63,16 +94,18 @@
 .rating-input .star {
   background: none;
   border: none;
-  font-size: 36px;
-  color: #ddd;
+  font-size: 42px;
+  color: #e0e0e0;
   cursor: pointer;
-  padding: 0;
-  transition: color 0.2s;
+  padding: 4px;
+  transition: all 0.3s ease;
 }
 
 .rating-input .star:hover,
 .rating-input .star.active {
   color: #ffc107;
+  transform: scale(1.2);
+  filter: drop-shadow(0 2px 4px rgba(255, 193, 7, 0.4));
 }
 
 .modal-actions {
