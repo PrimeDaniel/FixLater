@@ -29,6 +29,9 @@ const Navbar = () => {
                   My Applications
                 </Link>
               )}
+              <Link to="/messages" className="navbar-link">
+                Messages
+              </Link>
               <Link to="/notifications" className="navbar-link">
                 Notifications
               </Link>
