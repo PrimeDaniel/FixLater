@@ -11,11 +11,34 @@
   text-decoration: none;
   color: inherit;
   transition: all 0.3s ease;
+  background: white;
+  border: 2px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.conversation-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 5px;
+  background: transparent;
+  transition: all 0.3s ease;
 }
 
 .conversation-card:hover {
-  transform: translateX(8px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transform: translateX(12px);
+  box-shadow: 0 12px 30px rgba(102, 126, 234, 0.2);
+  border-color: #667eea;
+}
+
+.conversation-card:hover::before {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 0 10px rgba(102, 126, 234, 0.5);
 }
 
 .conversation-header {
