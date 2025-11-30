@@ -21,6 +21,9 @@ const Navbar = () => {
         <div className="navbar-menu">
           {user ? (
             <>
+              <Link to="/browse" className="navbar-link">
+                Browse Tasks
+              </Link>
               <Link to="/dashboard" className="navbar-link">
                 Dashboard
               </Link>
@@ -47,6 +50,9 @@ const Navbar = () => {
             </>
           ) : (
             <>
+              <Link to="/browse" className="navbar-link">
+                Browse Tasks
+              </Link>
               <Link to="/login" className="navbar-link">
                 Login
               </Link>
