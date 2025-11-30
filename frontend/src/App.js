@@ -8,6 +8,7 @@ import Landing from './pages/Landing';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
+import BrowseTasks from './pages/BrowseTasks';
 import CreateTask from './pages/CreateTask';
 import TaskDetail from './pages/TaskDetail';
 import Profile from './pages/Profile';
@@ -60,6 +61,7 @@ function AppContent() {
       <Navbar />
       <Routes>
         <Route path="/" element={<Landing />} />
+        <Route path="/browse" element={<BrowseTasks />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
         <Route
