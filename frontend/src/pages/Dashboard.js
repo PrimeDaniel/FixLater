@@ -2,7 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import './Dashboard.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
+import Grid from '@mui/material/Grid';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -66,149 +80,216 @@ const Dashboard = () => {
   ];
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   return (
-    <div className="page">
-      <div className="container">
-        <div className="page-header">
-          <h1>Dashboard</h1>
-          <p>Welcome back, {user?.name}!</p>
-        </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Dashboard
+        </Typography>
+        <Typography variant="body1" color="text.secondary">
+          Welcome back, {user?.name}!
+        </Typography>
+      </Box>
 
-        {user?.user_type === 'provider' ? (
-          <>
-            <div className="dashboard-section">
-              <div className="section-header">
-                <h2>Browse Available Tasks</h2>
-                <div className="filters">
-                  <select
-                    value={filters.category}
-                    onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                  >
-                    <option value="">All Categories</option>
-                    {categories.map((cat) => (
-                      <option key={cat} value={cat}>
-                        {cat.charAt(0).toUpperCase() + cat.slice(1)}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-              {tasks.length === 0 ? (
-                <p>No tasks available at the moment.</p>
-              ) : (
-                <div className="grid">
-                  {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} />
+      {user?.user_type === 'provider' ? (
+        <>
+          <Box sx={{ mb: 4 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+              <Typography variant="h5" component="h2">
+                Browse Available Tasks
+              </Typography>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Category</InputLabel>
+                <Select
+                  value={filters.category}
+                  label="Category"
+                  onChange={(e) => setFilters({ ...filters, category: e.target.value })}
+                >
+                  <MenuItem value="">All Categories</MenuItem>
+                  {categories.map((cat) => (
+                    <MenuItem key={cat} value={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </MenuItem>
                   ))}
-                </div>
-              )}
-            </div>
+                </Select>
+              </FormControl>
+            </Box>
+            {tasks.length === 0 ? (
+              <Typography>No tasks available at the moment.</Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {tasks.map((task) => (
+                  <Grid item xs={12} sm={6} md={4} key={task.id}>
+                    <TaskCard task={task} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
 
-            <div className="dashboard-section">
-              <h2>My Applications</h2>
-              {applications.length === 0 ? (
-                <p>You haven't applied to any tasks yet.</p>
-              ) : (
-                <div className="applications-list">
-                  {applications.map((app) => (
-                    <ApplicationCard key={app.id} application={app} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="dashboard-actions">
-              <Link to="/tasks/create" className="btn btn-primary">
-                Create New Task
-              </Link>
-            </div>
+          <Box sx={{ mb: 4 }}>
+            <Typography variant="h5" component="h2" sx={{ mb: 2 }}>
+              My Applications
+            </Typography>
+            {applications.length === 0 ? (
+              <Typography>You haven't applied to any tasks yet.</Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {applications.map((app) => (
+                  <Grid item xs={12} sm={6} key={app.id}>
+                    <ApplicationCard application={app} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
+        </>
+      ) : (
+        <>
+          <Box sx={{ mb: 4 }}>
+            <Button component={Link} to="/tasks/create" variant="contained" color="primary" size="large">
+              Create New Task
+            </Button>
+          </Box>
 
-            <div className="dashboard-section">
-              <h2>My Tasks</h2>
-              <div className="filters">
-                <select
+          <Box sx={{ mb: 4 }}>
+            <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 2 }}>
+              <Typography variant="h5" component="h2">
+                My Tasks
+              </Typography>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Status</InputLabel>
+                <Select
                   value={filters.status}
+                  label="Status"
                   onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                 >
-                  <option value="">All Status</option>
-                  <option value="open">Open</option>
-                  <option value="assigned">Assigned</option>
-                  <option value="completed">Completed</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </div>
-              {tasks.length === 0 ? (
-                <p>You haven't created any tasks yet.</p>
-              ) : (
-                <div className="grid">
-                  {tasks.map((task) => (
-                    <TaskCard key={task.id} task={task} showApplications={true} />
-                  ))}
-                </div>
-              )}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
+                  <MenuItem value="">All Status</MenuItem>
+                  <MenuItem value="open">Open</MenuItem>
+                  <MenuItem value="assigned">Assigned</MenuItem>
+                  <MenuItem value="completed">Completed</MenuItem>
+                  <MenuItem value="cancelled">Cancelled</MenuItem>
+                </Select>
+              </FormControl>
+            </Box>
+            {tasks.length === 0 ? (
+              <Typography>You haven't created any tasks yet.</Typography>
+            ) : (
+              <Grid container spacing={3}>
+                {tasks.map((task) => (
+                  <Grid item xs={12} sm={6} md={4} key={task.id}>
+                    <TaskCard task={task} showApplications={true} />
+                  </Grid>
+                ))}
+              </Grid>
+            )}
+          </Box>
+        </>
+      )}
+    </Container>
   );
 };
 
 const TaskCard = ({ task, showApplications = false }) => {
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'open': return 'success';
+      case 'assigned': return 'info';
+      case 'completed': return 'default';
+      case 'cancelled': return 'error';
+      default: return 'default';
+    }
+  };
+
   return (
-    <div className="card task-card">
-      <Link to={`/tasks/${task.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
-        {task.images && task.images.length > 0 && (
-          <img
-            src={task.images[0].image_url}
-            alt={task.title}
-            className="task-image"
-          />
-        )}
-        <h3>{task.title}</h3>
-        <p className="task-category">{task.category}</p>
-        <p className="task-description">{task.description.substring(0, 100)}...</p>
-        <div className="task-meta">
-          <span className="task-location">📍 {task.location}</span>
+    <Card sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {task.images && task.images.length > 0 && (
+        <CardMedia
+          component="img"
+          height="200"
+          image={task.images[0].image_url}
+          alt={task.title}
+        />
+      )}
+      <CardContent sx={{ flexGrow: 1 }}>
+        <Typography gutterBottom variant="h6" component="h3">
+          {task.title}
+        </Typography>
+        <Chip label={task.category} size="small" sx={{ mb: 1 }} />
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {task.description.substring(0, 100)}...
+        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+          <Typography variant="body2">📍 {task.location}</Typography>
           {task.suggested_price && (
-            <span className="task-price">${task.suggested_price}</span>
+            <Typography variant="body1" fontWeight="bold" color="primary">
+              ${task.suggested_price}
+            </Typography>
           )}
-        </div>
+        </Box>
         {showApplications && task.application_count > 0 && (
-          <div className="task-applications">
+          <Typography variant="body2" color="text.secondary">
             {task.application_count} application{task.application_count !== 1 ? 's' : ''}
-          </div>
+          </Typography>
         )}
-        <div className={`task-status task-status-${task.status}`}>
-          {task.status}
-        </div>
-      </Link>
-    </div>
+        <Chip 
+          label={task.status} 
+          color={getStatusColor(task.status)}
+          size="small"
+          sx={{ mt: 1 }}
+        />
+      </CardContent>
+      <CardActions>
+        <Button component={Link} to={`/tasks/${task.id}`} size="small" variant="contained" fullWidth>
+          View Details
+        </Button>
+      </CardActions>
+    </Card>
   );
 };
 
 const ApplicationCard = ({ application }) => {
+  const getStatusColor = (status) => {
+    switch(status) {
+      case 'pending': return 'warning';
+      case 'accepted': return 'success';
+      case 'rejected': return 'error';
+      default: return 'default';
+    }
+  };
+
   return (
-    <div className="card application-card">
-      <h3>{application.title}</h3>
-      <p>{application.description}</p>
-      <div className="application-meta">
-        <span>Proposed: ${application.proposed_price}</span>
-        <span className={`application-status application-status-${application.status}`}>
-          {application.status}
-        </span>
-      </div>
-      <Link to={`/tasks/${application.task_id}`} className="btn btn-primary btn-sm">
-        View Task
-      </Link>
-    </div>
+    <Card>
+      <CardContent>
+        <Typography gutterBottom variant="h6" component="h3">
+          {application.title}
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+          {application.description}
+        </Typography>
+        <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 1 }}>
+          <Typography variant="body2">Proposed: ${application.proposed_price}</Typography>
+          <Chip 
+            label={application.status}
+            color={getStatusColor(application.status)}
+            size="small"
+          />
+        </Box>
+      </CardContent>
+      <CardActions>
+        <Button component={Link} to={`/tasks/${application.task_id}`} size="small" variant="outlined" fullWidth>
+          View Task
+        </Button>
+      </CardActions>
+    </Card>
   );
 };
 
 export default Dashboard;
-
