@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Auth.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -36,48 +42,59 @@ const Login = () => {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <h1>Login</h1>
-        <p className="auth-subtitle">Welcome back to FixLater</p>
+    <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom textAlign="center">
+          Login
+        </Typography>
+        <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          Welcome back to FixLater
+        </Typography>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <Box component="form" onSubmit={handleSubmit}>
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            size="large"
+            disabled={loading}
+            sx={{ mt: 3 }}
+          >
             {loading ? 'Logging in...' : 'Login'}
-          </button>
-        </form>
+          </Button>
+        </Box>
 
-        <p className="auth-footer">
-          Don't have an account? <Link to="/register">Sign up</Link>
-        </p>
-      </div>
-    </div>
+        <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          Don't have an account? <Link to="/register" style={{ color: '#667eea' }}>Sign up</Link>
+        </Typography>
+      </Paper>
+    </Container>
   );
 };
 
 export default Login;
-
