@@ -1,8 +1,14 @@
 .settings {
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 20px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.1);
   overflow: hidden;
+  border: 2px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.settings:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
 }
 
 .settings-tabs {
@@ -12,23 +18,37 @@
 
 .settings-tabs button {
   flex: 1;
-  padding: 15px;
+  padding: 20px;
   border: none;
   background: transparent;
   cursor: pointer;
   font-size: 16px;
-  font-weight: 500;
-  color: #666;
-  transition: all 0.2s;
+  font-weight: 600;
+  color: #6b7280;
+  transition: all 0.3s ease;
+  position: relative;
 }
 
 .settings-tabs button:hover {
-  background: #f8f9fa;
+  background: linear-gradient(to bottom, rgba(102, 126, 234, 0.05) 0%, rgba(102, 126, 234, 0.1) 100%);
+  color: #667eea;
+  transform: translateY(-2px);
 }
 
 .settings-tabs button.active {
-  color: #007bff;
-  border-bottom: 2px solid #007bff;
+  color: #667eea;
+  background: linear-gradient(to bottom, rgba(102, 126, 234, 0.08) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.settings-tabs button.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
 }
 
 .settings-content {
@@ -40,21 +60,44 @@
 }
 
 .success-message {
-  background-color: #d4edda;
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
   color: #155724;
-  padding: 12px;
-  border-radius: 6px;
-  margin-bottom: 20px;
-  border: 1px solid #c3e6cb;
+  padding: 16px 20px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  border: 2px solid #c3e6cb;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(21, 87, 36, 0.1);
+  animation: slideIn 0.3s ease-out;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .profile-photo-preview {
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   border-radius: 50%;
   object-fit: cover;
-  margin-bottom: 10px;
-  border: 2px solid #ddd;
+  margin-bottom: 15px;
+  border: 4px solid transparent;
+  background: linear-gradient(white, white) padding-box,
+              linear-gradient(135deg, #667eea 0%, #764ba2 100%) border-box;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.profile-photo-preview:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 @media (max-width: 768px) {
