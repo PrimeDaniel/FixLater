@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
-import './Notifications.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Badge from '@mui/material/Badge';
+import CircularProgress from '@mui/material/CircularProgress';
+import Divider from '@mui/material/Divider';
 
 const Notifications = () => {
   const { user } = useAuth();
@@ -48,67 +57,91 @@ const Notifications = () => {
   };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="50vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
-    <div className="page">
-      <div className="container">
-        <div className="page-header">
-          <h1>Notifications</h1>
+    <Container maxWidth="md" sx={{ py: 4 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" sx={{ mb: 3 }}>
+        <Box>
+          <Typography variant="h4" component="h1" gutterBottom>
+            Notifications
+          </Typography>
           {unreadCount > 0 && (
-            <p>
-              {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
-            </p>
+            <Badge badgeContent={unreadCount} color="error">
+              <Typography variant="body2" color="text.secondary">
+                {unreadCount} unread notification{unreadCount !== 1 ? 's' : ''}
+              </Typography>
+            </Badge>
           )}
-          {unreadCount > 0 && (
-            <button onClick={markAllAsRead} className="btn btn-secondary">
-              Mark All as Read
-            </button>
-          )}
-        </div>
-
-        {notifications.length === 0 ? (
-          <div className="empty-state">
-            <p>No notifications yet.</p>
-          </div>
-        ) : (
-          <div className="notifications-list">
-            {notifications.map((notification) => (
-              <div
-                key={notification.id}
-                className={`notification-item ${!notification.read ? 'unread' : ''}`}
-                onClick={() => {
-                  if (!notification.read) {
-                    markAsRead(notification.id);
-                  }
-                }}
-              >
-                <div className="notification-content">
-                  <p className="notification-message">{notification.message}</p>
-                  <span className="notification-time">
-                    {new Date(notification.created_at).toLocaleString()}
-                  </span>
-                </div>
-                {notification.related_task_id && (
-                  <Link
-                    to={`/tasks/${notification.related_task_id}`}
-                    className="btn btn-primary btn-sm"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    View Task
-                  </Link>
-                )}
-              </div>
-            ))}
-          </div>
+        </Box>
+        {unreadCount > 0 && (
+          <Button onClick={markAllAsRead} variant="outlined" color="secondary">
+            Mark All as Read
+          </Button>
         )}
-      </div>
-    </div>
+      </Box>
+
+      {notifications.length === 0 ? (
+        <Card>
+          <CardContent>
+            <Typography textAlign="center" color="text.secondary">
+              No notifications yet.
+            </Typography>
+          </CardContent>
+        </Card>
+      ) : (
+        <Box>
+          {notifications.map((notification, index) => (
+            <Card
+              key={notification.id}
+              sx={{
+                mb: 2,
+                bgcolor: !notification.read ? 'action.hover' : 'background.paper',
+                cursor: !notification.read ? 'pointer' : 'default',
+              }}
+              onClick={() => {
+                if (!notification.read) {
+                  markAsRead(notification.id);
+                }
+              }}
+            >
+              <CardContent>
+                <Typography variant="body1" gutterBottom>
+                  {notification.message}
+                </Typography>
+                <Typography variant="caption" color="text.secondary">
+                  {new Date(notification.created_at).toLocaleString()}
+                </Typography>
+              </CardContent>
+              {notification.related_task_id && (
+                <>
+                  <Divider />
+                  <CardActions>
+                    <Button
+                      component={Link}
+                      to={`/tasks/${notification.related_task_id}`}
+                      size="small"
+                      variant="text"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      View Task
+                    </Button>
+                  </CardActions>
+                </>
+              )}
+            </Card>
+          ))}
+        </Box>
+      )}
+    </Container>
   );
 };
 
 export default Notifications;
-
