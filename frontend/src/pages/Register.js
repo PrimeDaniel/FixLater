@@ -1,7 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Auth.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import TextField from '@mui/material/TextField';
+import Button from '@mui/material/Button';
+import Alert from '@mui/material/Alert';
+import Paper from '@mui/material/Paper';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import FormHelperText from '@mui/material/FormHelperText';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -49,88 +60,99 @@ const Register = () => {
   };
 
   return (
-    <div className="auth-page">
-      <div className="auth-container">
-        <h1>Create Account</h1>
-        <p className="auth-subtitle">Join FixLater today</p>
+    <Container maxWidth="sm" sx={{ py: 8 }}>
+      <Paper elevation={3} sx={{ p: 4 }}>
+        <Typography variant="h4" component="h1" gutterBottom textAlign="center">
+          Create Account
+        </Typography>
+        <Typography variant="body1" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          Join FixLater today
+        </Typography>
 
-        {error && <div className="error-message">{error}</div>}
+        {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Name</label>
-            <input
-              type="text"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              required
-            />
-          </div>
+        <Box component="form" onSubmit={handleSubmit}>
+          <TextField
+            label="Name"
+            type="text"
+            name="name"
+            value={formData.name}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <div className="form-group">
-            <label>Email</label>
-            <input
-              type="email"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <TextField
+            label="Email"
+            type="email"
+            name="email"
+            value={formData.email}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <div className="form-group">
-            <label>Account Type</label>
-            <select
+          <FormControl fullWidth margin="normal" required>
+            <InputLabel>Account Type</InputLabel>
+            <Select
               name="user_type"
               value={formData.user_type}
+              label="Account Type"
               onChange={handleChange}
-              required
             >
-              <option value="requester">Requester (I need help with tasks)</option>
-              <option value="provider">Provider (I offer services)</option>
-            </select>
-            <small className="form-hint">
+              <MenuItem value="requester">Requester (I need help with tasks)</MenuItem>
+              <MenuItem value="provider">Provider (I offer services)</MenuItem>
+            </Select>
+            <FormHelperText>
               {formData.user_type === 'requester'
                 ? 'You can post tasks and hire providers'
                 : 'You can post tasks AND apply to other tasks'}
-            </small>
-          </div>
+            </FormHelperText>
+          </FormControl>
 
-          <div className="form-group">
-            <label>Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <TextField
+            label="Password"
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <div className="form-group">
-            <label>Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              required
-            />
-          </div>
+          <TextField
+            label="Confirm Password"
+            type="password"
+            name="confirmPassword"
+            value={formData.confirmPassword}
+            onChange={handleChange}
+            required
+            fullWidth
+            margin="normal"
+          />
 
-          <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
+          <Button 
+            type="submit" 
+            variant="contained" 
+            color="primary" 
+            fullWidth 
+            size="large"
+            disabled={loading}
+            sx={{ mt: 3 }}
+          >
             {loading ? 'Creating Account...' : 'Register'}
-          </button>
-        </form>
+          </Button>
+        </Box>
 
-        <p className="auth-footer">
-          Already have an account? <Link to="/login">Login</Link>
-        </p>
-      </div>
-    </div>
+        <Typography variant="body2" textAlign="center" sx={{ mt: 3 }}>
+          Already have an account? <Link to="/login" style={{ color: '#667eea' }}>Login</Link>
+        </Typography>
+      </Paper>
+    </Container>
   );
 };
 
 export default Register;
-
