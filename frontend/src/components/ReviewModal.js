@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import api from '../utils/api';
-import './ReviewModal.css';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Rating from '@mui/material/Rating';
+import TextField from '@mui/material/TextField';
 
 const ReviewModal = ({ task, onClose, onSuccess }) => {
   const [rating, setRating] = useState(5);
@@ -34,55 +42,42 @@ const ReviewModal = ({ task, onClose, onSuccess }) => {
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>Review Provider</h2>
-          <button className="modal-close" onClick={onClose}>×</button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="review-form">
-          {error && <div className="error-message">{error}</div>}
-
-          <div className="form-group">
-            <label>Rating *</label>
-            <div className="rating-input">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  className={`star ${star <= rating ? 'active' : ''}`}
-                  onClick={() => setRating(star)}
-                >
-                  ★
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="form-group">
-            <label>Review (Optional)</label>
-            <textarea
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              rows="5"
-              placeholder="Share your experience..."
+    <Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>Review Provider</DialogTitle>
+      <form onSubmit={handleSubmit}>
+        <DialogContent>
+          {error && <Typography color="error" sx={{ mb: 2 }}>{error}</Typography>}
+          <Box sx={{ mb: 2 }}>
+            <Typography component="legend">Rating *</Typography>
+            <Rating
+              name="rating"
+              value={rating}
+              onChange={(_, value) => setRating(value || 1)}
+              max={5}
             />
-          </div>
-
-          <div className="modal-actions">
-            <button type="button" onClick={onClose} className="btn btn-secondary">
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-primary" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Review'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+          </Box>
+          <TextField
+            label="Review (Optional)"
+            multiline
+            rows={5}
+            value={reviewText}
+            onChange={e => setReviewText(e.target.value)}
+            fullWidth
+            placeholder="Share your experience..."
+            variant="outlined"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={onClose} color="secondary" variant="outlined">
+            Cancel
+          </Button>
+          <Button type="submit" color="primary" variant="contained" disabled={loading}>
+            {loading ? 'Submitting...' : 'Submit Review'}
+          </Button>
+        </DialogActions>
+      </form>
+    </Dialog>
   );
 };
 
 export default ReviewModal;
-
