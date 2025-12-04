@@ -1,69 +1,142 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Landing.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
 
 const Landing = () => {
   const { user } = useAuth();
 
   return (
-    <div className="landing">
-      <div className="hero">
-        <div className="container">
-          <h1>FixLater</h1>
-          <p className="hero-subtitle">Connect with trusted service providers in your area</p>
-          <p className="hero-description">
+    <Box>
+      <Box 
+        sx={{ 
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          py: 12,
+          textAlign: 'center'
+        }}
+      >
+        <Container maxWidth="md">
+          <Typography variant="h2" component="h1" gutterBottom fontWeight="bold">
+            FixLater
+          </Typography>
+          <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+            Connect with trusted service providers in your area
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 4, opacity: 0.9 }}>
             Need help with cleaning, handyman work, babysitting, or other tasks? 
             Find reliable providers or offer your services to others.
-          </p>
+          </Typography>
           {!user && (
-            <div className="hero-cta">
-              <Link to="/register" className="btn btn-primary btn-large">
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', flexWrap: 'wrap' }}>
+              <Button component={Link} to="/register" variant="contained" color="secondary" size="large">
                 Get Started
-              </Link>
-              <Link to="/login" className="btn btn-secondary btn-large">
+              </Button>
+              <Button component={Link} to="/login" variant="outlined" sx={{ color: 'white', borderColor: 'white' }} size="large">
                 Login
-              </Link>
-            </div>
+              </Button>
+            </Box>
           )}
           {user && (
-            <div className="hero-cta">
-              <Link to="/dashboard" className="btn btn-primary btn-large">
+            <Box>
+              <Button component={Link} to="/dashboard" variant="contained" color="secondary" size="large">
                 Go to Dashboard
-              </Link>
-            </div>
+              </Button>
+            </Box>
           )}
-        </div>
-      </div>
+        </Container>
+      </Box>
 
-      <div className="features">
-        <div className="container">
-          <h2>How It Works</h2>
-          <div className="features-grid">
-            <div className="feature-card">
-              <h3>For Requesters</h3>
-              <ul>
-                <li>Post tasks with details and images</li>
-                <li>Set your availability</li>
-                <li>Review applications and choose providers</li>
-                <li>Rate and review after completion</li>
-              </ul>
-            </div>
-            <div className="feature-card">
-              <h3>For Providers</h3>
-              <ul>
-                <li>Browse available tasks in your area</li>
-                <li>Apply with your bid and preferred time</li>
-                <li>Build your profile with reviews</li>
-                <li>Set your service area</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+      <Container maxWidth="lg" sx={{ py: 10 }}>
+        <Typography variant="h4" component="h2" textAlign="center" gutterBottom sx={{ mb: 6 }}>
+          How It Works
+        </Typography>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Card elevation={2} sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h5" component="h3" gutterBottom>
+                  For Requesters
+                </Typography>
+                <List>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Post tasks with details and images" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Set your availability" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Review applications and choose providers" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Rate and review after completion" />
+                  </ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Card elevation={2} sx={{ height: '100%' }}>
+              <CardContent>
+                <Typography variant="h5" component="h3" gutterBottom>
+                  For Providers
+                </Typography>
+                <List>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Browse available tasks in your area" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Apply with your bid and preferred time" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Build your profile with reviews" />
+                  </ListItem>
+                  <ListItem>
+                    <ListItemIcon>
+                      <CheckCircleIcon color="success" />
+                    </ListItemIcon>
+                    <ListItemText primary="Set your service area" />
+                  </ListItem>
+                </List>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+      </Container>
+    </Box>
   );
 };
 
 export default Landing;
-
