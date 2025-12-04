@@ -1,7 +1,11 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import './Navbar.css';
+import AppBar from '@mui/material/AppBar';
+import Toolbar from '@mui/material/Toolbar';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
 
 const Navbar = () => {
   const { user, logout } = useAuth();
@@ -13,50 +17,49 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="navbar">
-      <div className="container">
-        <Link to="/" className="navbar-brand">
+    <AppBar position="sticky" color="default" elevation={1}>
+      <Toolbar>
+        <Typography variant="h6" component={Link} to="/" sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit', fontWeight: 'bold' }}>
           FixLater
-        </Link>
-        <div className="navbar-menu">
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
           {user ? (
             <>
-              <Link to="/dashboard" className="navbar-link">
+              <Button component={Link} to="/dashboard" color="primary" variant="text">
                 Dashboard
-              </Link>
+              </Button>
               {user.user_type === 'provider' && (
-                <Link to="/applications" className="navbar-link">
+                <Button component={Link} to="/applications" color="primary" variant="text">
                   My Applications
-                </Link>
+                </Button>
               )}
-              <Link to="/notifications" className="navbar-link">
+              <Button component={Link} to="/notifications" color="primary" variant="text">
                 Notifications
-              </Link>
-              <Link to={`/profile/${user.id}`} className="navbar-link">
+              </Button>
+              <Button component={Link} to={`/profile/${user.id}`} color="primary" variant="text">
                 Profile
-              </Link>
-              <Link to="/settings" className="navbar-link">
+              </Button>
+              <Button component={Link} to="/settings" color="primary" variant="text">
                 Settings
-              </Link>
-              <button onClick={handleLogout} className="btn btn-secondary">
+              </Button>
+              <Button onClick={handleLogout} color="secondary" variant="contained">
                 Logout
-              </button>
+              </Button>
             </>
           ) : (
             <>
-              <Link to="/login" className="navbar-link">
+              <Button component={Link} to="/login" color="primary" variant="text">
                 Login
-              </Link>
-              <Link to="/register" className="btn btn-primary">
+              </Button>
+              <Button component={Link} to="/register" color="primary" variant="contained">
                 Sign Up
-              </Link>
+              </Button>
             </>
           )}
-        </div>
-      </div>
-    </nav>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 
 export default Navbar;
-
