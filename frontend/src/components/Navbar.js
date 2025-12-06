@@ -28,6 +28,9 @@ const Navbar = () => {
               <Button component={Link} to="/dashboard" color="primary" variant="text">
                 Dashboard
               </Button>
+              <Button component={Link} to="/rankings" color="primary" variant="text">
+                Rankings
+              </Button>
               {user.user_type === 'provider' && (
                 <Button component={Link} to="/applications" color="primary" variant="text">
                   My Applications

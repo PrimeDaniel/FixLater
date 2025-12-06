@@ -113,5 +113,47 @@ router.get('/provider/:provider_id', async (req, res) => {
   }
 });
 
-module.exports = router;
+// Get top providers by category
+router.get('/top-providers', async (req, res) => {
+  try {
+    const { category } = req.query;
 
+    let query = `
+      SELECT 
+        u.id as provider_id,
+        u.name as provider_name,
+        AVG(r.rating) as avg_rating,
+        COUNT(r.id) as review_count,
+        COUNT(DISTINCT t.id) as completed_tasks
+      FROM users u
+      LEFT JOIN reviews r ON u.id = r.provider_id
+      LEFT JOIN tasks t ON u.id = t.assigned_provider_id AND t.status = 'completed'
+      WHERE u.user_type = 'provider'
+    `;
+
+    const params = [];
+
+    if (category) {
+      query += ' AND t.category = $1';
+      params.push(category);
+    }
+
+    query += `
+      GROUP BY u.id, u.name
+      HAVING COUNT(r.id) > 0
+      ORDER BY avg_rating DESC, review_count DESC
+      LIMIT 50
+    `;
+
+    const result = await pool.query(query, params);
+
+    res.json({
+      providers: result.rows,
+    });
+  } catch (error) {
+    console.error('Get top providers error:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;

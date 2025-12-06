@@ -15,6 +15,7 @@ import Profile from './pages/Profile';
 import Applications from './pages/Applications';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
+import Rankings from './pages/Rankings';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -83,6 +84,7 @@ function App() {
                 </PrivateRoute>
               }
             />
+            <Route path="/rankings" element={<Rankings />} />
           </Routes>
         </div>
       </Router>
