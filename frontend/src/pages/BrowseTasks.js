@@ -24,10 +24,13 @@ import EventIcon from '@mui/icons-material/Event';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import SearchIcon from '@mui/icons-material/Search';
 import LightningBoltIcon from '@mui/icons-material/ElectricBolt';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 
 const BrowseTasks = () => {
   const [tasks, setTasks] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [savedTaskIds, setSavedTaskIds] = useState([]);
   const [filters, setFilters] = useState({
     category: '',
     status: 'open',
@@ -54,6 +57,7 @@ const BrowseTasks = () => {
 
   useEffect(() => {
     fetchTasks();
+    loadSavedTasks();
   }, [filters]);
 
   const fetchTasks = async () => {
@@ -93,6 +97,24 @@ const BrowseTasks = () => {
       console.error('Fetch tasks error:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadSavedTasks = () => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
+    setSavedTaskIds(saved);
+  };
+
+  const toggleSaveTask = (taskId) => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
+    if (saved.includes(taskId)) {
+      const updated = saved.filter((id) => id !== taskId);
+      localStorage.setItem('savedTasks', JSON.stringify(updated));
+      setSavedTaskIds(updated);
+    } else {
+      saved.push(taskId);
+      localStorage.setItem('savedTasks', JSON.stringify(saved));
+      setSavedTaskIds(saved);
     }
   };
 
@@ -288,6 +310,30 @@ const BrowseTasks = () => {
                       </Box>
                     )}
 
+                    {/* Save Button */}
+                    {savedTaskIds.includes(task.id) && (
+                      <Box
+                        sx={{
+                          position: 'absolute',
+                          top: 12,
+                          left: 12,
+                          bgcolor: 'rgba(102, 126, 234, 0.9)',
+                          color: 'white',
+                          px: 1.5,
+                          py: 0.5,
+                          borderRadius: 1,
+                          fontSize: 12,
+                          fontWeight: 600,
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 0.5,
+                        }}
+                      >
+                        <BookmarkIcon sx={{ fontSize: 16 }} />
+                        Saved
+                      </Box>
+                    )}
+
                     {/* Status Badge */}
                     <Chip
                       label={task.status.toUpperCase()}
@@ -396,7 +442,7 @@ const BrowseTasks = () => {
                   </CardContent>
 
                   {/* Action Button */}
-                  <CardActions sx={{ pt: 0 }}>
+                  <CardActions sx={{ pt: 0, display: 'flex', gap: 1 }}>
                     <Button
                       component={Link}
                       to={`/tasks/${task.id}`}
@@ -404,7 +450,18 @@ const BrowseTasks = () => {
                       color="primary"
                       fullWidth
                     >
-                      View Details & Apply
+                      View Details
+                    </Button>
+                    <Button
+                      variant={savedTaskIds.includes(task.id) ? 'contained' : 'outlined'}
+                      color="primary"
+                      onClick={() => toggleSaveTask(task.id)}
+                      sx={{
+                        minWidth: 'auto',
+                        px: 1.5,
+                      }}
+                    >
+                      {savedTaskIds.includes(task.id) ? <BookmarkIcon /> : <BookmarkBorderIcon />}
                     </Button>
                   </CardActions>
                 </Card>

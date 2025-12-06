@@ -31,6 +31,9 @@ const Navbar = () => {
               <Button component={Link} to="/providers" color="primary" variant="text">
                 Providers
               </Button>
+              <Button component={Link} to="/saved-tasks" color="primary" variant="text">
+                Saved
+              </Button>
               <Button component={Link} to="/dashboard" color="primary" variant="text">
                 Dashboard
               </Button>

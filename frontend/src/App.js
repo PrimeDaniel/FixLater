@@ -13,6 +13,7 @@ import CreateTask from './pages/CreateTask';
 import TaskDetail from './pages/TaskDetail';
 import BrowseTasks from './pages/BrowseTasks';
 import ProviderDirectory from './pages/ProviderDirectory';
+import SavedTasks from './pages/SavedTasks';
 import Profile from './pages/Profile';
 import Applications from './pages/Applications';
 import Notifications from './pages/Notifications';
@@ -43,6 +44,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/browse-tasks" element={<BrowseTasks />} />
               <Route path="/providers" element={<ProviderDirectory />} />
+              <Route path="/saved-tasks" element={<SavedTasks />} />
               <Route
                 path="/dashboard"
                 element={
