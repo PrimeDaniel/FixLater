@@ -3,7 +3,39 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import ReviewModal from '../components/ReviewModal';
-import './TaskDetail.css';
+import Container from '@mui/material/Container';
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import CardActions from '@mui/material/CardActions';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+import Chip from '@mui/material/Chip';
+import CircularProgress from '@mui/material/CircularProgress';
+import Alert from '@mui/material/Alert';
+import Divider from '@mui/material/Divider';
+import Avatar from '@mui/material/Avatar';
+import Paper from '@mui/material/Paper';
+import ImageList from '@mui/material/ImageList';
+import ImageListItem from '@mui/material/ImageListItem';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import LocationOnIcon from '@mui/icons-material/LocationOn';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import EventIcon from '@mui/icons-material/Event';
+import PersonIcon from '@mui/icons-material/Person';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import ImageIcon from '@mui/icons-material/Image';
 
 const TaskDetail = () => {
   const { id } = useParams();
@@ -13,6 +45,8 @@ const TaskDetail = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showApplyForm, setShowApplyForm] = useState(false);
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [isSaved, setIsSaved] = useState(false);
   const [applicationData, setApplicationData] = useState({
     proposed_price: '',
     selected_slot_id: '',
@@ -22,6 +56,7 @@ const TaskDetail = () => {
 
   useEffect(() => {
     fetchTask();
+    checkIfSaved();
   }, [id]);
 
   const fetchTask = async () => {
@@ -33,6 +68,23 @@ const TaskDetail = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const checkIfSaved = () => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
+    setIsSaved(saved.includes(parseInt(id)));
+  };
+
+  const toggleSave = () => {
+    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
+    if (isSaved) {
+      const updated = saved.filter((taskId) => taskId !== parseInt(id));
+      localStorage.setItem('savedTasks', JSON.stringify(updated));
+    } else {
+      saved.push(parseInt(id));
+      localStorage.setItem('savedTasks', JSON.stringify(saved));
+    }
+    setIsSaved(!isSaved);
   };
 
   const handleApply = async (e) => {
@@ -53,7 +105,7 @@ const TaskDetail = () => {
       });
 
       setShowApplyForm(false);
-      fetchTask(); // Refresh to see updated application count
+      fetchTask();
       navigate('/applications');
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to submit application');
@@ -81,11 +133,10 @@ const TaskDetail = () => {
   };
 
   const handleCancelTask = async () => {
-    if (!window.confirm('Are you sure you want to cancel this task?')) return;
-
     try {
       await api.patch(`/api/tasks/${id}`, { status: 'cancelled' });
       fetchTask();
+      setShowConfirmDialog(false);
     } catch (err) {
       setError(err.response?.data?.error || 'Failed to cancel task');
     }
@@ -95,168 +146,357 @@ const TaskDetail = () => {
     fetchTask();
   };
 
-  const canReview = isRequester && 
-    task.status === 'assigned' && 
-    task.scheduled_time && 
-    new Date(task.scheduled_time) <= new Date();
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'open':
+        return '#10b981';
+      case 'assigned':
+        return '#3b82f6';
+      case 'completed':
+        return '#6b7280';
+      case 'cancelled':
+        return '#ef4444';
+      default:
+        return '#6b7280';
+    }
+  };
+
+  const getApplicationStatusColor = (status) => {
+    switch (status) {
+      case 'pending':
+        return 'warning';
+      case 'accepted':
+        return 'success';
+      case 'rejected':
+        return 'error';
+      default:
+        return 'default';
+    }
+  };
 
   if (loading) {
-    return <div className="loading">Loading...</div>;
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="80vh">
+        <CircularProgress />
+      </Box>
+    );
   }
 
   if (!task) {
-    return <div className="page"><div className="container"><p>Task not found</p></div></div>;
+    return (
+      <Container maxWidth="lg" sx={{ py: 4 }}>
+        <Alert severity="error">Task not found</Alert>
+      </Container>
+    );
   }
 
   const isRequester = user && user.id === task.requester_id;
   const isProvider = user && user.user_type === 'provider';
   const canApply = isProvider && task.status === 'open' && !isRequester;
+  const canReview = isRequester && task.status === 'assigned' && task.scheduled_time && new Date(task.scheduled_time) <= new Date();
 
   return (
-    <div className="page">
-      <div className="container">
-        <div className="task-detail">
-          <div className="task-main">
-            <div className="task-header">
-              <h1>{task.title}</h1>
-              <div className={`task-status task-status-${task.status}`}>
-                {task.status}
-              </div>
-            </div>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {error && <Alert severity="error" sx={{ mb: 3 }}>{error}</Alert>}
 
-            <div className="task-meta-info">
-              <span className="task-category">{task.category}</span>
-              <span className="task-location">📍 {task.location}</span>
-              {task.suggested_price && (
-                <span className="task-price">${task.suggested_price}</span>
+      <Grid container spacing={3}>
+        {/* Main Content */}
+        <Grid item xs={12} md={8}>
+          {/* Task Header */}
+          <Card sx={{ mb: 3 }}>
+            <Box sx={{ position: 'relative' }}>
+              {task.images && task.images.length > 0 ? (
+                <CardMedia
+                  component="img"
+                  height="400"
+                  image={task.images[0].image_url}
+                  alt={task.title}
+                />
+              ) : (
+                <Box
+                  sx={{
+                    height: 400,
+                    bgcolor: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  <ImageIcon sx={{ fontSize: 80, color: 'white', opacity: 0.5 }} />
+                </Box>
               )}
-            </div>
 
-            <div className="task-description">
-              <h2>Description</h2>
-              <p>{task.description}</p>
-            </div>
+              {/* Save Button */}
+              <Button
+                startIcon={isSaved ? <BookmarkIcon /> : <BookmarkBorderIcon />}
+                onClick={toggleSave}
+                sx={{
+                  position: 'absolute',
+                  top: 16,
+                  right: 16,
+                  bgcolor: 'white',
+                  color: '#667eea',
+                  '&:hover': { bgcolor: '#f5f5f5' },
+                }}
+              >
+                {isSaved ? 'Saved' : 'Save'}
+              </Button>
+            </Box>
 
-            {task.images && task.images.length > 0 && (
-              <div className="task-images">
-                <h2>Images</h2>
-                <div className="images-grid">
-                  {task.images.map((img) => (
-                    <img key={img.id} src={img.image_url} alt={task.title} />
-                  ))}
-                </div>
-              </div>
-            )}
+            <CardContent>
+              <Box display="flex" justifyContent="space-between" alignItems="start" sx={{ mb: 2 }}>
+                <Box flex={1}>
+                  <Typography variant="h4" component="h1" sx={{ fontWeight: 700, mb: 1 }}>
+                    {task.title}
+                  </Typography>
+                  <Box display="flex" gap={1} flexWrap="wrap">
+                    <Chip
+                      label={task.status.toUpperCase()}
+                      sx={{
+                        bgcolor: getStatusColor(task.status),
+                        color: 'white',
+                        fontWeight: 600,
+                      }}
+                    />
+                    <Chip
+                      label={task.category.charAt(0).toUpperCase() + task.category.slice(1)}
+                      variant="outlined"
+                      color="primary"
+                    />
+                  </Box>
+                </Box>
+              </Box>
 
-            {task.availability_slots && task.availability_slots.length > 0 && (
-              <div className="task-availability">
-                <h2>Available Time Slots</h2>
-                <ul>
-                  {task.availability_slots.map((slot) => (
-                    <li key={slot.id}>
-                      {new Date(slot.start_time).toLocaleString()} -{' '}
-                      {new Date(slot.end_time).toLocaleString()}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
+              {/* Task Meta Info */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, mb: 3 }}>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <LocationOnIcon sx={{ color: '#667eea', fontSize: 20 }} />
+                  <Typography variant="body1" sx={{ fontWeight: 500 }}>
+                    {task.location}
+                  </Typography>
+                </Box>
 
-            {isRequester && task.status === 'open' && (
-              <button onClick={handleCancelTask} className="btn btn-danger">
-                Cancel Task
-              </button>
-            )}
+                {task.suggested_price && (
+                  <Box display="flex" alignItems="center" gap={1}>
+                    <AttachMoneyIcon sx={{ color: '#28a745', fontSize: 20 }} />
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: '#28a745' }}>
+                      ${task.suggested_price.toFixed(2)} suggested
+                    </Typography>
+                  </Box>
+                )}
 
-            {canReview && (
-              <button onClick={() => setShowReviewModal(true)} className="btn btn-primary">
-                Submit Review
-              </button>
-            )}
-          </div>
+                <Box display="flex" alignItems="center" gap={1}>
+                  <EventIcon sx={{ color: '#999', fontSize: 20 }} />
+                  <Typography variant="body2" color="text.secondary">
+                    Posted {new Date(task.created_at).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              </Box>
 
-          <div className="task-sidebar">
-            {isRequester && task.applications && task.applications.length > 0 && (
-              <div className="applications-section">
-                <h2>Applications ({task.applications.length})</h2>
-                {task.applications.map((app) => (
-                  <div key={app.id} className="application-card">
-                    <Link to={`/profile/${app.provider_id}`}>
-                      <div className="application-header">
-                        {app.provider_photo && (
-                          <img
-                            src={app.provider_photo}
-                            alt={app.provider_name}
-                            className="provider-photo"
+              <Divider sx={{ my: 2 }} />
+
+              {/* Description */}
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
+                About this task
+              </Typography>
+              <Typography variant="body1" color="text.secondary" sx={{ mb: 3, lineHeight: 1.8 }}>
+                {task.description}
+              </Typography>
+
+              {/* Images Gallery */}
+              {task.images && task.images.length > 1 && (
+                <>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    More images
+                  </Typography>
+                  <ImageList cols={3} gap={8} sx={{ mb: 3 }}>
+                    {task.images.slice(1).map((img) => (
+                      <ImageListItem key={img.id}>
+                        <img
+                          src={img.image_url}
+                          alt={task.title}
+                          style={{ borderRadius: 8, cursor: 'pointer' }}
+                        />
+                      </ImageListItem>
+                    ))}
+                  </ImageList>
+                </>
+              )}
+
+              {/* Availability Slots */}
+              {task.availability_slots && task.availability_slots.length > 0 && (
+                <>
+                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                    Available time slots
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                    {task.availability_slots.map((slot) => (
+                      <Paper key={slot.id} sx={{ p: 2, bgcolor: '#f9f9f9', border: '1px solid #eee' }}>
+                        <Typography variant="body2">
+                          <strong>{new Date(slot.start_time).toLocaleDateString()}</strong>
+                          {' '} {new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(slot.end_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Typography>
+                      </Paper>
+                    ))}
+                  </Box>
+                </>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Requester Applications View */}
+          {isRequester && task.applications && task.applications.length > 0 && (
+            <Card>
+              <CardContent>
+                <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                  Applications ({task.applications.length})
+                </Typography>
+
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                  {task.applications.map((app) => (
+                    <Paper key={app.id} sx={{ p: 2, border: '1px solid #eee' }}>
+                      <Box display="flex" alignItems="start" gap={2} sx={{ mb: 2 }}>
+                        <Avatar
+                          sx={{
+                            width: 48,
+                            height: 48,
+                            bgcolor: '#667eea',
+                            textDecoration: 'none',
+                            cursor: 'pointer',
+                          }}
+                          component={Link}
+                          to={`/profile/${app.provider_id}`}
+                        >
+                          {app.provider_name?.charAt(0).toUpperCase()}
+                        </Avatar>
+                        <Box flex={1}>
+                          <Typography
+                            component={Link}
+                            to={`/profile/${app.provider_id}`}
+                            sx={{
+                              fontWeight: 600,
+                              color: '#667eea',
+                              textDecoration: 'none',
+                              '&:hover': { textDecoration: 'underline' },
+                            }}
+                          >
+                            {app.provider_name}
+                          </Typography>
+                          <Chip
+                            label={app.status}
+                            size="small"
+                            color={getApplicationStatusColor(app.status)}
+                            variant="outlined"
+                            sx={{ mt: 0.5 }}
                           />
-                        )}
-                        <span>{app.provider_name}</span>
-                      </div>
-                    </Link>
-                    <div className="application-details">
-                      <p>Proposed Price: <strong>${app.proposed_price}</strong></p>
-                      <p>
-                        Selected Time:{' '}
-                        {new Date(app.start_time).toLocaleString()} -{' '}
-                        {new Date(app.end_time).toLocaleString()}
-                      </p>
-                      <p className={`application-status application-status-${app.status}`}>
-                        {app.status}
-                      </p>
-                    </div>
-                    {app.status === 'pending' && (
-                      <div className="application-actions">
-                        <button
-                          onClick={() => handleAcceptApplication(app.id)}
-                          className="btn btn-success btn-sm"
-                        >
-                          Accept
-                        </button>
-                        <button
-                          onClick={() => handleRejectApplication(app.id)}
-                          className="btn btn-danger btn-sm"
-                        >
-                          Reject
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
+                        </Box>
+                      </Box>
 
-            {canApply && (
-              <div className="apply-section">
+                      <Box sx={{ bgcolor: '#f9f9f9', p: 1.5, borderRadius: 1, mb: 2 }}>
+                        <Typography variant="body2">
+                          <strong>Proposed price:</strong> ${app.proposed_price}
+                        </Typography>
+                        <Typography variant="body2">
+                          <strong>Selected time:</strong> {new Date(app.start_time).toLocaleDateString()}{' '}
+                          {new Date(app.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Typography>
+                      </Box>
+
+                      {app.status === 'pending' && (
+                        <Box display="flex" gap={1}>
+                          <Button
+                            variant="contained"
+                            color="success"
+                            size="small"
+                            onClick={() => handleAcceptApplication(app.id)}
+                          >
+                            Accept
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            size="small"
+                            onClick={() => handleRejectApplication(app.id)}
+                          >
+                            Reject
+                          </Button>
+                        </Box>
+                      )}
+                    </Paper>
+                  ))}
+                </Box>
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
+
+        {/* Sidebar */}
+        <Grid item xs={12} md={4}>
+          {/* Task Creator Card */}
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2 }}>
+                Task Posted By
+              </Typography>
+              <Box display="flex" alignItems="center" gap={2} sx={{ mb: 2 }}>
+                <Avatar
+                  sx={{
+                    width: 56,
+                    height: 56,
+                    bgcolor: '#667eea',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                  }}
+                  component={Link}
+                  to={`/profile/${task.requester_id}`}
+                >
+                  {task.requester_name?.charAt(0).toUpperCase()}
+                </Avatar>
+                <Box>
+                  <Typography
+                    component={Link}
+                    to={`/profile/${task.requester_id}`}
+                    sx={{
+                      fontWeight: 600,
+                      color: '#667eea',
+                      textDecoration: 'none',
+                      '&:hover': { textDecoration: 'underline' },
+                      display: 'block',
+                    }}
+                  >
+                    {task.requester_name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Member since {new Date(task.requester_joined).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              </Box>
+            </CardContent>
+          </Card>
+
+          {/* Apply Section */}
+          {canApply && (
+            <Card sx={{ mb: 3 }}>
+              <CardContent>
                 {!showApplyForm ? (
-                  <button
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    size="large"
                     onClick={() => setShowApplyForm(true)}
-                    className="btn btn-primary btn-block"
                   >
                     Apply to This Task
-                  </button>
+                  </Button>
                 ) : (
-                  <form onSubmit={handleApply} className="apply-form">
-                    {error && <div className="error-message">{error}</div>}
-                    <div className="form-group">
-                      <label>Proposed Price *</label>
-                      <input
-                        type="number"
-                        value={applicationData.proposed_price}
-                        onChange={(e) =>
-                          setApplicationData({
-                            ...applicationData,
-                            proposed_price: e.target.value,
-                          })
-                        }
-                        min="0"
-                        step="0.01"
-                        required
-                      />
-                    </div>
-                    <div className="form-group">
-                      <label>Select Time Slot *</label>
-                      <select
+                  <Box component="form" onSubmit={handleApply}>
+                    {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+                    <FormControl fullWidth sx={{ mb: 2 }}>
+                      <InputLabel>Select Time Slot *</InputLabel>
+                      <Select
                         value={applicationData.selected_slot_id}
+                        label="Select Time Slot *"
                         onChange={(e) =>
                           setApplicationData({
                             ...applicationData,
@@ -265,45 +505,117 @@ const TaskDetail = () => {
                         }
                         required
                       >
-                        <option value="">Choose a time slot</option>
-                        {task.availability_slots.map((slot) => (
-                          <option key={slot.id} value={slot.id}>
-                            {new Date(slot.start_time).toLocaleString()} -{' '}
-                            {new Date(slot.end_time).toLocaleString()}
-                          </option>
+                        <MenuItem value="">Choose a time slot</MenuItem>
+                        {task.availability_slots?.map((slot) => (
+                          <MenuItem key={slot.id} value={slot.id}>
+                            {new Date(slot.start_time).toLocaleDateString()}{' '}
+                            {new Date(slot.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </MenuItem>
                         ))}
-                      </select>
-                    </div>
-                    <button
+                      </Select>
+                    </FormControl>
+
+                    <TextField
+                      label="Proposed Price"
+                      type="number"
+                      fullWidth
+                      inputProps={{ step: '0.01', min: '0' }}
+                      value={applicationData.proposed_price}
+                      onChange={(e) =>
+                        setApplicationData({
+                          ...applicationData,
+                          proposed_price: e.target.value,
+                        })
+                      }
+                      required
+                      sx={{ mb: 2 }}
+                    />
+
+                    <Button
+                      variant="contained"
+                      color="primary"
+                      fullWidth
                       type="submit"
-                      className="btn btn-primary btn-block"
                       disabled={submitting}
+                      sx={{ mb: 1 }}
                     >
                       {submitting ? 'Submitting...' : 'Submit Application'}
-                    </button>
-                    <button
-                      type="button"
+                    </Button>
+                    <Button
+                      variant="outlined"
+                      color="inherit"
+                      fullWidth
                       onClick={() => setShowApplyForm(false)}
-                      className="btn btn-secondary btn-block"
                     >
                       Cancel
-                    </button>
-                  </form>
+                    </Button>
+                  </Box>
                 )}
-              </div>
-            )}
-          </div>
-        </div>
+              </CardContent>
+            </Card>
+          )}
 
-        {showReviewModal && (
-          <ReviewModal
-            task={task}
-            onClose={() => setShowReviewModal(false)}
-            onSuccess={handleReviewSuccess}
-          />
-        )}
-      </div>
-    </div>
+          {/* Requester Actions */}
+          {isRequester && (
+            <Card>
+              <CardContent>
+                {task.status === 'open' && (
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    fullWidth
+                    onClick={() => setShowConfirmDialog(true)}
+                    sx={{ mb: 1 }}
+                  >
+                    Cancel Task
+                  </Button>
+                )}
+
+                {canReview && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    fullWidth
+                    onClick={() => setShowReviewModal(true)}
+                  >
+                    Submit Review
+                  </Button>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </Grid>
+      </Grid>
+
+      {/* Confirm Cancel Dialog */}
+      <Dialog open={showConfirmDialog} onClose={() => setShowConfirmDialog(false)}>
+        <DialogTitle>Cancel Task?</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to cancel this task? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowConfirmDialog(false)}>Keep Task</Button>
+          <Button
+            onClick={handleCancelTask}
+            color="error"
+            variant="contained"
+          >
+            Cancel Task
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Review Modal */}
+      {showReviewModal && (
+        <ReviewModal
+          task={task}
+          onClose={() => setShowReviewModal(false)}
+          onSuccess={handleReviewSuccess}
+        />
+      )}
+    </Container>
   );
 };
 
