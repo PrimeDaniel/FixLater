@@ -11,6 +11,8 @@ import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import CreateTask from './pages/CreateTask';
 import TaskDetail from './pages/TaskDetail';
+import BrowseTasks from './pages/BrowseTasks';
+import ProviderDirectory from './pages/ProviderDirectory';
 import Profile from './pages/Profile';
 import Applications from './pages/Applications';
 import Notifications from './pages/Notifications';
@@ -39,6 +41,8 @@ function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/register" element={<Register />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/browse-tasks" element={<BrowseTasks />} />
+              <Route path="/providers" element={<ProviderDirectory />} />
               <Route
                 path="/dashboard"
                 element={
@@ -55,37 +59,34 @@ function App() {
                   </PrivateRoute>
                 }
               />
-            <Route path="/tasks/:id" element={<TaskDetail />} />
-            <Route
-              path="/profile/:id"
-              element={<Profile />}
-            />
-            <Route
-              path="/applications"
-              element={
-                <PrivateRoute>
-                  <Applications />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/notifications"
-              element={
-                <PrivateRoute>
-                  <Notifications />
-                </PrivateRoute>
-              }
-            />
-            <Route
-              path="/settings"
-              element={
-                <PrivateRoute>
-                  <Settings />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/rankings" element={<Rankings />} />
-          </Routes>
+              <Route path="/tasks/:id" element={<TaskDetail />} />
+              <Route path="/profile/:id" element={<Profile />} />
+              <Route
+                path="/applications"
+                element={
+                  <PrivateRoute>
+                    <Applications />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/notifications"
+                element={
+                  <PrivateRoute>
+                    <Notifications />
+                  </PrivateRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <PrivateRoute>
+                    <Settings />
+                  </PrivateRoute>
+                }
+              />
+              <Route path="/rankings" element={<Rankings />} />
+            </Routes>
         </div>
       </Router>
     </AuthProvider>

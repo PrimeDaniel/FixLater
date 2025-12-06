@@ -25,6 +25,12 @@ const Navbar = () => {
         <Box sx={{ display: 'flex', gap: 2 }}>
           {user ? (
             <>
+              <Button component={Link} to="/browse-tasks" color="primary" variant="text">
+                Tasks
+              </Button>
+              <Button component={Link} to="/providers" color="primary" variant="text">
+                Providers
+              </Button>
               <Button component={Link} to="/dashboard" color="primary" variant="text">
                 Dashboard
               </Button>
