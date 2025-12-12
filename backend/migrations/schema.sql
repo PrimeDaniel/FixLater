@@ -1,3 +1,9 @@
+-- Password resets table
+CREATE TABLE IF NOT EXISTS password_resets (
+  user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
+  token VARCHAR(128) NOT NULL,
+  expires_at TIMESTAMP NOT NULL
+);
 -- Users table
 CREATE TABLE IF NOT EXISTS users (
   id SERIAL PRIMARY KEY,
@@ -98,6 +104,15 @@ CREATE TABLE IF NOT EXISTS messages (
   message TEXT NOT NULL,
   read BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Saved Tasks table (Favorites/Bookmarks)
+CREATE TABLE IF NOT EXISTS saved_tasks (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  task_id INTEGER NOT NULL REFERENCES tasks(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE(user_id, task_id)
 );
 
 -- Indexes for performance
