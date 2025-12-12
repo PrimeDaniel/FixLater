@@ -19,6 +19,11 @@ import Applications from './pages/Applications';
 import Notifications from './pages/Notifications';
 import Settings from './pages/Settings';
 import Rankings from './pages/Rankings';
+import About from './pages/About';
+import FAQ from './pages/FAQ';
+import Contact from './pages/Contact';
+import Terms from './pages/Terms';
+import Privacy from './pages/Privacy';
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -45,6 +50,11 @@ function App() {
               <Route path="/browse-tasks" element={<BrowseTasks />} />
               <Route path="/providers" element={<ProviderDirectory />} />
               <Route path="/saved-tasks" element={<SavedTasks />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/faq" element={<FAQ />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route path="/privacy" element={<Privacy />} />
               <Route
                 path="/dashboard"
                 element={
