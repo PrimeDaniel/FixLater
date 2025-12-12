@@ -30,6 +30,9 @@ app.use('/api/users', require('./routes/users'));
 app.use('/api/notifications', require('./routes/notifications'));
 app.use('/api/upload', require('./routes/upload'));
 app.use('/api/messages', require('./routes/messages'));
+app.use('/api/tasks', require('./routes/savedTasks'));
+app.use('/api/users', require('./routes/providers'));
+app.use('/api/auth', require('./routes/passwordReset'));
 
 // Health check
 app.get('/api/health', (req, res) => {
