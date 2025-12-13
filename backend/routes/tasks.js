@@ -6,6 +6,12 @@ const NodeGeocoder = require('node-geocoder');
 
 const router = express.Router();
 
+/**
+ * @route   GET /api/tasks
+ * @desc    Get all tasks with optional filters (category, price, status, location)
+ * @access  Public
+ */
+
 const geocoder = NodeGeocoder({
   provider: 'openstreetmap',
 });
@@ -22,6 +28,8 @@ router.get('/', [
 ], async (req, res) => {
   try {
     const { category, min_price, max_price, status, lat, lng, radius } = req.query;
+
+    // Base query
     let sql = `
       SELECT 
         t.*,
@@ -71,7 +79,7 @@ router.get('/', [
     sql += ` GROUP BY t.id, u.name, u.profile_photo ORDER BY t.created_at DESC`;
 
     const result = await pool.query(sql, params);
-    
+
     let tasks = result.rows;
 
     // Filter by distance if location provided
@@ -92,8 +100,13 @@ router.get('/', [
   }
 });
 
-// Get single task with details (optional auth - public view but auth needed for applications)
-router.get('/:id', optionalAuthenticate, async (req, res) => {
+/**
+ * @route   GET /api/tasks/:id
+ * @desc    Get single task details
+ * @access  Public (Optional Auth for application details)
+ */
+// Use regex to ensure ID is numeric, preventing conflict with other string routes if any
+router.get('/:id(\\d+)', optionalAuthenticate, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -147,6 +160,11 @@ router.get('/:id', optionalAuthenticate, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/tasks
+ * @desc    Create a new task
+ * @access  Private (Requester/Provider)
+ */
 // Create task
 router.post('/', authenticate, requireUserType('requester', 'provider'), [
   body('title').trim().notEmpty(),
@@ -207,8 +225,13 @@ router.post('/', authenticate, requireUserType('requester', 'provider'), [
   }
 });
 
+/**
+ * @route   PATCH /api/tasks/:id
+ * @desc    Update task status (e.g. modify, cancel, complete)
+ * @access  Private (Task Owner)
+ */
 // Update task status (accept application, cancel, etc.)
-router.patch('/:id', authenticate, [
+router.patch('/:id(\\d+)', authenticate, [
   body('status').optional().isIn(['assigned', 'completed', 'cancelled']),
   body('assigned_provider_id').optional().isInt(),
 ], async (req, res) => {
@@ -248,7 +271,7 @@ router.patch('/:id', authenticate, [
     if (assigned_provider_id) {
       updates.push(`assigned_provider_id = $${paramCount++}`);
       params.push(assigned_provider_id);
-      
+
       // Get scheduled time from application
       const appResult = await pool.query(
         'SELECT tas.start_time FROM applications a JOIN task_availability_slots tas ON a.selected_slot_id = tas.id WHERE a.task_id = $1 AND a.provider_id = $2',
@@ -290,4 +313,3 @@ function calculateDistance(lat1, lng1, lat2, lng2) {
 }
 
 module.exports = router;
-

@@ -3,6 +3,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import api from '../utils/api';
 import ReviewModal from '../components/ReviewModal';
+import ApplicationItem from '../components/ApplicationItem';
 import Container from '@mui/material/Container';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
@@ -39,7 +40,7 @@ import ImageIcon from '@mui/icons-material/Image';
 
 const TaskDetail = () => {
   const { id } = useParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth(); // Assuming useAuth provides loading state
   const navigate = useNavigate();
   const [task, setTask] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -56,8 +57,10 @@ const TaskDetail = () => {
 
   useEffect(() => {
     fetchTask();
-    checkIfSaved();
-  }, [id]);
+    if (user) {
+      checkIfSaved();
+    }
+  }, [id, user]);
 
   const fetchTask = async () => {
     try {
@@ -70,21 +73,38 @@ const TaskDetail = () => {
     }
   };
 
-  const checkIfSaved = () => {
-    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
-    setIsSaved(saved.includes(parseInt(id)));
+  // Check if task is saved (Bookmarked) via API
+  const checkIfSaved = async () => {
+    try {
+      const response = await api.get('/api/tasks/saved');
+      const savedTasks = response.data.tasks;
+      const isBookmarked = savedTasks.some(t => t.id === parseInt(id));
+      setIsSaved(isBookmarked);
+    } catch (err) {
+      console.error('Failed to check saved status', err);
+    }
   };
 
-  const toggleSave = () => {
-    const saved = JSON.parse(localStorage.getItem('savedTasks') || '[]');
-    if (isSaved) {
-      const updated = saved.filter((taskId) => taskId !== parseInt(id));
-      localStorage.setItem('savedTasks', JSON.stringify(updated));
-    } else {
-      saved.push(parseInt(id));
-      localStorage.setItem('savedTasks', JSON.stringify(saved));
+  // Toggle save status via API
+  const toggleSave = async () => {
+    if (!user) {
+      // If not logged in, redirect to login or show error
+      navigate('/login', { state: { from: `/tasks/${id}` } });
+      return;
     }
-    setIsSaved(!isSaved);
+
+    try {
+      if (isSaved) {
+        await api.delete(`/api/tasks/${id}/save`);
+        setIsSaved(false);
+      } else {
+        await api.post(`/api/tasks/${id}/save`);
+        setIsSaved(true);
+      }
+    } catch (err) {
+      console.error('Failed to toggle save', err);
+      setError('Failed to update bookmark');
+    }
   };
 
   const handleApply = async (e) => {
@@ -158,19 +178,6 @@ const TaskDetail = () => {
         return '#ef4444';
       default:
         return '#6b7280';
-    }
-  };
-
-  const getApplicationStatusColor = (status) => {
-    switch (status) {
-      case 'pending':
-        return 'warning';
-      case 'accepted':
-        return 'success';
-      case 'rejected':
-        return 'error';
-      default:
-        return 'default';
     }
   };
 
@@ -354,75 +361,12 @@ const TaskDetail = () => {
 
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                   {task.applications.map((app) => (
-                    <Paper key={app.id} sx={{ p: 2, border: '1px solid #eee' }}>
-                      <Box display="flex" alignItems="start" gap={2} sx={{ mb: 2 }}>
-                        <Avatar
-                          sx={{
-                            width: 48,
-                            height: 48,
-                            bgcolor: '#667eea',
-                            textDecoration: 'none',
-                            cursor: 'pointer',
-                          }}
-                          component={Link}
-                          to={`/profile/${app.provider_id}`}
-                        >
-                          {app.provider_name?.charAt(0).toUpperCase()}
-                        </Avatar>
-                        <Box flex={1}>
-                          <Typography
-                            component={Link}
-                            to={`/profile/${app.provider_id}`}
-                            sx={{
-                              fontWeight: 600,
-                              color: '#667eea',
-                              textDecoration: 'none',
-                              '&:hover': { textDecoration: 'underline' },
-                            }}
-                          >
-                            {app.provider_name}
-                          </Typography>
-                          <Chip
-                            label={app.status}
-                            size="small"
-                            color={getApplicationStatusColor(app.status)}
-                            variant="outlined"
-                            sx={{ mt: 0.5 }}
-                          />
-                        </Box>
-                      </Box>
-
-                      <Box sx={{ bgcolor: '#f9f9f9', p: 1.5, borderRadius: 1, mb: 2 }}>
-                        <Typography variant="body2">
-                          <strong>Proposed price:</strong> ${app.proposed_price}
-                        </Typography>
-                        <Typography variant="body2">
-                          <strong>Selected time:</strong> {new Date(app.start_time).toLocaleDateString()}{' '}
-                          {new Date(app.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </Typography>
-                      </Box>
-
-                      {app.status === 'pending' && (
-                        <Box display="flex" gap={1}>
-                          <Button
-                            variant="contained"
-                            color="success"
-                            size="small"
-                            onClick={() => handleAcceptApplication(app.id)}
-                          >
-                            Accept
-                          </Button>
-                          <Button
-                            variant="outlined"
-                            color="error"
-                            size="small"
-                            onClick={() => handleRejectApplication(app.id)}
-                          >
-                            Reject
-                          </Button>
-                        </Box>
-                      )}
-                    </Paper>
+                    <ApplicationItem
+                      key={app.id}
+                      application={app}
+                      onAccept={handleAcceptApplication}
+                      onReject={handleRejectApplication}
+                    />
                   ))}
                 </Box>
               </CardContent>
@@ -620,4 +564,3 @@ const TaskDetail = () => {
 };
 
 export default TaskDetail;
-
